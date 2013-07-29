@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>BB</title>
+        <script type="text/javascript" src="coffee-script.js"></script>
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="underscore.js"></script>
+        <script type="text/javascript" src="backbone.js"></script>
+                
+    </head>
+    <body>
+        <h1>Sous-vide controller</h1>
+        
+        <script type="text/template" id="gui_template">
+            <div>
+                Temp: <%- temp %>
+            </div>
+            
+            <div>
+                Setpoint: <%- setpoint %>
+                <input type="button" id="setpoint" value="change" />
+            </div>
+            
+            <div>
+                Lower Limit: <%- dn_l %>
+                <input type="button" id="dn_l" value="change" />
+            </div>
+            
+            <div>
+                Upper Limit: <%- up_l %>
+                <input type="button" id="up_l" value="change" />
+            </div>
+
+            <div>
+                On: <%- on %>
+            </div>
+            
+            <div>
+                <input type="button" id="on" value="on" />
+                <input type="button" id="off" value="off" />
+            </div>
+
+            <div>
+                <input type="button" id="refresh_button" value="Refresh" />
+            </div>
+
+        </script>
+
+        <div id="gui">
+            <script type="text/coffeescript" src="bb2.coffee"></script>        
+        </div>
+    </body>
+</html>
