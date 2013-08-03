@@ -65,7 +65,7 @@ chart.selectAll("line.y")
 
 
 d3.json(
-    '../json' + window.location.search,
+    'tempdata.json' + window.location.search,
     function (jsondata) {
         "use strict";
 
