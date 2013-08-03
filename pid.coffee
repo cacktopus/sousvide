@@ -10,6 +10,7 @@ app = require './app'
 watchdog = require './watchdog'
 _ = require 'underscore'
 redis = require 'redis'
+data = require './data'
 
 #  73.0: dict(limit=0.40,  rng=0.05),
 #  65.0: dict(limit=0.25,  rng=0.05),
@@ -164,8 +165,9 @@ SousVide = backbone.Model.extend {
     t_prev = utl.time()
 
     logTemp = (time, temp) =>
-      val = "#{time},#{temp}"
-      @rclient.zadd @tempKey, time, val, (err, res) ->
+      storeTime = time*1000
+      val = "#{storeTime},#{temp}"
+      @rclient.zadd @tempKey, storeTime, val, (err, res) ->
         if err then throw err
         print "redis: #{val}"
 
@@ -205,15 +207,8 @@ SousVide = backbone.Model.extend {
 
       t_prev = t_now
 
-  getTempData: (callback)->
-    @rclient.zrangebyscore @tempKey, '-inf', '+inf', (err, res) =>
-      temp = res.map (datum) ->
-        [y,x] = datum.split(',')
-        {x: x, y: y}
-
-      callback
-        current: [temp[temp.length - 1]]
-        temp: temp
+  getTempData: (cb) ->
+    data.getTempData @rclient, @tempKey, cb
 }
 
 
