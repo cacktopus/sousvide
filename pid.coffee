@@ -100,6 +100,8 @@ SousVide = backbone.Model.extend {
 
     @pump @get 'on'
 
+    @rclient = redis.createClient()
+    @tempKey = 'tempdata'
 
   preset: (point) ->
     dat = DATA[point]
@@ -161,8 +163,18 @@ SousVide = backbone.Model.extend {
     t = 0.0
     t_prev = utl.time()
 
+    logTemp = (time, temp) =>
+      val = "#{time},#{temp}"
+      @rclient.zadd @tempKey, time, val, (err, res) ->
+        if err then throw err
+        print "redis: #{val}"
+
+    log = _.throttle logTemp, (5 * 60 * 1000)
+
     return (temp, t_now) =>
       print t_now, temp
+      log t_now, temp
+
       attr = @attributes
       @set {temp: temp}
 
@@ -192,19 +204,21 @@ SousVide = backbone.Model.extend {
         cool()
 
       t_prev = t_now
-}
 
-logTemp = (client, time, temp) ->
-  val = "#{time},#{temp}"
-  client.zadd 'tempdata', time, val, (err, res) ->
-    if err then throw err
-    print "redis: #{val}"
+  getTempData: (callback)->
+    @rclient.zrangebyscore @tempKey, '-inf', '+inf', (err, res) =>
+      temp = res.map (datum) ->
+        [y,x] = datum.split(',')
+        {x: x, y: y}
+
+      callback
+        current: [temp[temp.length - 1]]
+        temp: temp
+}
 
 
 setup = ->
   print 'setup'
-
-  rclient = redis.createClient()
 
   temp = undefined
   tempReadLoop (data) ->
@@ -215,16 +229,12 @@ setup = ->
   sv = new SousVide {setpoint: 55.0, getTemp: getTemp, on: false}
 
   f = sv.readloop()
-  log = _.throttle logTemp, (5 * 60 * 1000)
-
 
   setInterval ->
     [temp, time] = [getTemp(), utl.time()]
 
     if temp?
       f temp, time
-      log rclient, time, temp
-
   , PERIOD
 
   sv

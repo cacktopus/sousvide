@@ -4,19 +4,6 @@ getTemp = require './read-temp'
 print = console.log
 pid = require './pid'
 
-tempdata =
-  current: [
-    x: 7.69
-    y: 28.25
-  ]
-  temp: [{
-    x: 0.02
-    y: 59.00
-  },{
-    x: 7.69
-    y: 28.25
-  }]
-
 setup = (sv) ->
   app.use express.bodyParser()
   app.use express.static 'html'
@@ -33,7 +20,8 @@ setup = (sv) ->
     res.send {}, 404
 
   app.get '/tempdata.json', (req, res) ->
-    res.send tempdata
+    sv.getTempData (data) ->
+      res.send data
 
   app.listen 3000
   console.log 'listening'
