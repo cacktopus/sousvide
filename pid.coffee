@@ -33,6 +33,7 @@ DATA =
     55.0:   {limit: 0.187, rng: 0.05}
     54.0:   {limit: 0.185, rng: 0.05}
     44.0:   {limit: 0.10, rng: 0.03}
+    42.0:   {limit: 0.095, rng: 0.03}
 
 PID_THRESHOLD = 0.25
 
