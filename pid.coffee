@@ -1,6 +1,6 @@
-utl         = require('./utl')
-util        = require('util')
-backbone    = require 'backbone'
+utl = require('./utl')
+util = require('util')
+backbone = require 'backbone'
 tempReadLoop = (require './read-temp')
 print = console.log
 fs = require 'fs'
@@ -25,29 +25,28 @@ redis = require 'redis'
 #  44.0: dict(limit=0.10,  rng=0.03),
 
 
-
 DATA =
-    0.0:    {limit: 0.00, rng: 0.00}
-    85.0:   {limit: 0.80, rng: 0.05}
-    65.0:   {limit: 0.25, rng: 0.05}
-    60.0:   {limit: 0.215, rng: 0.04}
-    59.0:   {limit: 0.21, rng: 0.04}
-    55.0:   {limit: 0.187, rng: 0.05}
-    54.0:   {limit: 0.185, rng: 0.05}
-    44.0:   {limit: 0.10, rng: 0.03}
-    42.0:   {limit: 0.095, rng: 0.03}
+  0.0: {limit: 0.00, rng: 0.00}
+  85.0: {limit: 0.80, rng: 0.05}
+  65.0: {limit: 0.25, rng: 0.05}
+  60.0: {limit: 0.215, rng: 0.04}
+  59.0: {limit: 0.21, rng: 0.04}
+  55.0: {limit: 0.187, rng: 0.05}
+  54.0: {limit: 0.185, rng: 0.05}
+  44.0: {limit: 0.10, rng: 0.03}
+  42.0: {limit: 0.095, rng: 0.03}
 
 PID_THRESHOLD = 0.25
 
 clamp = (lo, val, hi) ->
-    if( val < lo )
-        return lo
-    if( val > hi )
-        return hi
-    return val
+  if( val < lo )
+    return lo
+  if( val > hi )
+    return hi
+  return val
 
-abs     = Math.abs
-floor   = Math.floor
+abs = Math.abs
+floor = Math.floor
 
 #PERIOD = 2.5 * 1000
 PERIOD = 10 * 1000
@@ -76,125 +75,123 @@ pumpOffSync = ->
   fs.writeFileSync pumpGpio, '0'
 
 
-
-
 SousVide = backbone.Model.extend {
-    
-    defaults:
-        setpoint:       59.0
-        
-        Kp:             0.2
-        Ki:             0.05
 
-        dn_l:           0.0
-        up_l:           0.0
-        
-        PID_THRESHOLD:  0.25
-        integral:       0.0
-        bangstate:      0.0
-        
-        on:             false
-        
-    initialize: () ->
-        @preset @attributes.setpoint
+  defaults:
+    setpoint: 59.0
 
-        @on 'change:on', (model, value, options) ->
-          @pump value
+    Kp: 0.2
+    Ki: 0.05
 
-        @pump @get 'on'
+    dn_l: 0.0
+    up_l: 0.0
 
-        
-    preset: (point) ->
-        dat = DATA[point]
-        
-        @set {setpoint: point}
-        
-        @set {
-            up_l: dat.limit + dat.rng
-            dn_l: dat.limit - dat.rng
-        }
+    PID_THRESHOLD: 0.25
+    integral: 0.0
+    bangstate: 0.0
 
-    pump: (value) ->
-      if value then pumpOn() else pumpOff()
+    on: false
 
-        
-    pid: (temp, delta_t, t) ->
-        attr        = @attributes        
-        error       = attr.setpoint - temp        
-        integral    = attr.integral
-        
-        integral    += error * delta_t
-        output      = attr.Kp * error + attr.Ki * integral
-        integral    = clamp -20, integral, 20
-        
-        if( abs output > 2.5 )
-            integral = 0.0
-        
-        @set {integral: integral}    
-        output = clamp attr.dn_l, output, attr.up_l
-        
-        console.log {
-            setpoint: attr.setpoint
-            error: error
-            integral: integral
-            output: output
-            delta_t: delta_t
-            t: t
-        }
-        
-        return output
-    
-    fullon: (t, temp) ->
-        attr = @attributes
-        error = attr.setpoint - temp
-        
-        if( abs(error) < PID_THRESHOLD )
-            return null
-        
-        if( error > 0 )
-            utl.logfmt 'full %d %d', t, temp
-            return 1.0
-            
+  initialize: () ->
+    @preset @attributes.setpoint
+
+    @on 'change:on', (model, value, options) ->
+      @pump value
+
+    @pump @get 'on'
+
+
+  preset: (point) ->
+    dat = DATA[point]
+
+    @set {setpoint: point}
+
+    @set {
+      up_l: dat.limit + dat.rng
+      dn_l: dat.limit - dat.rng
+    }
+
+  pump: (value) ->
+    if value then pumpOn() else pumpOff()
+
+
+  pid: (temp, delta_t, t) ->
+    attr = @attributes
+    error = attr.setpoint - temp
+    integral = attr.integral
+
+    integral += error * delta_t
+    output = attr.Kp * error + attr.Ki * integral
+    integral = clamp -20, integral, 20
+
+    if( abs output > 2.5 )
+      integral = 0.0
+
+    @set {integral: integral}
+    output = clamp attr.dn_l, output, attr.up_l
+
+    console.log {
+      setpoint: attr.setpoint
+      error: error
+      integral: integral
+      output: output
+      delta_t: delta_t
+      t: t
+    }
+
+    return output
+
+  fullon: (t, temp) ->
+    attr = @attributes
+    error = attr.setpoint - temp
+
+    if( abs(error) < PID_THRESHOLD )
+      return null
+
+    if( error > 0 )
+      utl.logfmt 'full %d %d', t, temp
+      return 1.0
+
+    else
+      utl.logfmt 'zero %d %d', t, temp
+      return 0.0
+
+
+  readloop: () ->
+    t = 0.0
+    t_prev = utl.time()
+
+    return (temp, t_now) =>
+      print t_now, temp
+      attr = @attributes
+      @set {temp: temp}
+
+      delta_t = t_now - t_prev
+      t += delta_t
+
+      if attr.on
+        output = @fullon(t, temp)
+        if output is null
+          output = @pid(temp, delta_t, t)
+
+        cookTime = output * PERIOD
+        if cookTime >= PERIOD
+          cook()
+
+        else if cookTime <= 0
+          cool()
+
         else
-            utl.logfmt 'zero %d %d', t, temp
-            return 0.0
-            
-    
-    readloop: () ->
-        t = 0.0
-        t_prev = utl.time()
+          cookTime = clamp 100, cookTime, (PERIOD - 100)
+          cook()
+          setTimeout cool, cookTime
 
-        return (temp, t_now) =>
-          print t_now, temp
-          attr = @attributes
-          @set {temp:temp}
+        print "cookTime: #{cookTime}"
 
-          delta_t = t_now - t_prev
-          t += delta_t
+      else
+        cool()
 
-          if attr.on
-            output = @fullon(t,temp)
-            if output is null
-                output = @pid(temp,delta_t,t)
-
-            cookTime = output * PERIOD
-            if cookTime >= PERIOD
-              cook()
-
-            else if cookTime <= 0
-              cool()
-
-            else
-              cookTime = clamp 100, cookTime, (PERIOD - 100)
-              cook()
-              setTimeout cool, cookTime
-
-            print "cookTime: #{cookTime}"
-
-          else
-            cool()
-
-          t_prev = t_now
+      t_prev = t_now
 }
 
 logTemp = (client, time, temp) ->
@@ -234,7 +231,8 @@ setup = ->
 
 
 exitHandler = (wdogStop) ->
-  wdogStop()  #there is a timing issue here as this is async
+  wdogStop()
+  #there is a timing issue here as this is async
   coolSync()
   pumpOffSync()
   process.exit()
@@ -287,7 +285,7 @@ main = () ->
   app.setup sv
 
 if( require.main == module )
-    main()
-    
+  main()
+
 module.exports =
-  setup:setup
+  setup: setup
