@@ -8,6 +8,8 @@ appeng = require './appeng'
 setupStdin = require './console_read'
 app = require './app'
 watchdog = require './watchdog'
+_ = require 'underscore'
+redis = require 'redis'
 
 #  73.0: dict(limit=0.40,  rng=0.05),
 #  65.0: dict(limit=0.25,  rng=0.05),
@@ -162,7 +164,7 @@ SousVide = backbone.Model.extend {
         t = 0.0
         t_prev = utl.time()
 
-        return (temp, t_now, ard) =>
+        return (temp, t_now) =>
           print t_now, temp
           attr = @attributes
           @set {temp:temp}
@@ -195,11 +197,19 @@ SousVide = backbone.Model.extend {
           t_prev = t_now
 }
 
+logTemp = (client, time, temp) ->
+  val = "#{time},#{temp}"
+  client.zadd 'tempdata', time, val, (err, res) ->
+    if err then throw err
+    print "redis: #{val}"
+
 
 setup = ->
   print 'setup'
 
-  temp = 25.0
+  rclient = redis.createClient()
+
+  temp = undefined
   tempReadLoop (data) ->
     temp = data
   getTemp = ->
@@ -208,9 +218,16 @@ setup = ->
   sv = new SousVide {setpoint: 55.0, getTemp: getTemp, on: false}
 
   f = sv.readloop()
+  log = _.throttle logTemp, (5 * 60 * 1000)
+
 
   setInterval ->
-    f getTemp(), utl.time(), {}
+    [temp, time] = [getTemp(), utl.time()]
+
+    if temp?
+      f temp, time
+      log rclient, time, temp
+
   , PERIOD
 
   sv
