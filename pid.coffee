@@ -12,6 +12,8 @@ _ = require 'underscore'
 redis = require 'redis'
 data = require './data'
 
+#TODO make a package.json file
+
 #  73.0: dict(limit=0.40,  rng=0.05),
 #  65.0: dict(limit=0.25,  rng=0.05),
 #  62.0: dict(limit=0.23,  rng=0.04),
