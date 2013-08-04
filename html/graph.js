@@ -1,4 +1,4 @@
-var w = 1000;
+var w = 800;
 var h = 300;
 
 var d3 = window.d3;
