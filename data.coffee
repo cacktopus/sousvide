@@ -2,10 +2,6 @@ print = console.log
 time = require 'time'
 tz = "America/Los_Angeles"
 
-now = new time.Date()
-now.setTimezone(tz);
-start = new time.Date(now.getFullYear(), now.getMonth(), now.getDate(), tz)
-
 s = 1000
 m = 60 * s
 h = 60 * m
@@ -13,10 +9,15 @@ h = 60 * m
 getTempData = (rclient, tempKey, callback)->
   rclient.zrangebyscore tempKey, '-inf', '+inf', (err, res) ->
     if err then throw err
+
+    now = new time.Date()
+    now.setTimezone tz
+    start = new time.Date now.getFullYear(), now.getMonth(), now.getDate(), tz
+
     temp = res.map (datum) ->
       [x,y] = datum.split(',')
-      time = (new Date(parseFloat x) - start) / h
-      {x: time, y: y}
+      hours = (new Date(parseFloat x) - start) / h
+      {x: hours, y: y}
 
     callback
       current: [temp[temp.length - 1]]
