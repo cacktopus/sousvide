@@ -7,12 +7,14 @@ m = 60 * s
 h = 60 * m
 
 getTempData = (rclient, tempKey, callback)->
-  rclient.zrangebyscore tempKey, '-inf', '+inf', (err, res) ->
-    if err then throw err
 
-    now = new time.Date()
-    now.setTimezone tz
-    start = new time.Date now.getFullYear(), now.getMonth(), now.getDate(), tz
+  now = new time.Date()
+  now.setTimezone tz
+  start = new time.Date now.getFullYear(), now.getMonth(), now.getDate(), tz
+  bgn = start.getTime() - 5 * m
+
+  rclient.zrangebyscore tempKey, bgn, '+inf', (err, res) ->
+    if err then throw err
 
     temp = res.map (datum) ->
       [x,y] = datum.split(',')
