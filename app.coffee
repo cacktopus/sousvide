@@ -6,7 +6,7 @@ pid = require './pid'
 
 setup = (sv) ->
   app.use express.bodyParser()
-  app.use express.static 'html'
+  app.use express.static (__dirname + '/html')
 
   app.get '/sousvide/:id', (req, res) ->
     res.send sv.toJSON()
