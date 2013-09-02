@@ -11,6 +11,5 @@ outpin () {
 outpin 25
 outpin 17
 
-modprobe bcm2708_wdog
 chown root.gpio /dev/watchdog
 chmod g+rw /dev/watchdog
