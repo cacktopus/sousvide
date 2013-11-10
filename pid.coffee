@@ -31,12 +31,14 @@ data = require './data'
 DATA =
   0.0: {limit: 0.00, rng: 0.00}
   85.0: {limit: 0.80, rng: 0.05}
+  73.0: {limit: 0.40, rng: 0.05}
   65.0: {limit: 0.25, rng: 0.05}
   60.0: {limit: 0.215, rng: 0.04}
   59.0: {limit: 0.21, rng: 0.04}
   56.0: {limit: 0.190, rng: 0.04}
   55.0: {limit: 0.187, rng: 0.05}
   54.0: {limit: 0.185, rng: 0.05}
+  50.0: {limit: 0.15, rng: 0.05}
   44.0: {limit: 0.10, rng: 0.03}
   42.0: {limit: 0.095, rng: 0.03}
 
