@@ -11,22 +11,8 @@ line2 = /t=(\d+)/
 
 
 getTemp = (cb) ->
-  fs.readFile '/sys/bus/w1/devices/28-000004150749/w1_slave', {encoding: 'utf8'}, (err, data) ->
-    if err then throw new Error err
-
-    [one, two] = data.trim().split "\n"
-
-    ma1 = one.match line1
-    ma2 = two.match line2
-
-    if ma1 and ma2
-      temp = ma2[1]/1000.0
-      cb temp
-    else
-      print "Problem with:"
-      print data
-
-    setTimeout (getTemp.bind null, cb), 250
+  cb 48.25
+  setTimeout (getTemp.bind null, cb), 250
 
 
 main = ->

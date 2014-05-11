@@ -7,49 +7,74 @@
         <script type="text/javascript" src="backbone.js"></script>
         <script type="text/javascript" src="d3.min.js"></script>
         <link rel="stylesheet" type="text/css" href="chart-style.css"/>
+
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="starter-template.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <h1>Sous-vide controller</h1>
-        
-        <script type="text/template" id="gui_template">
-            <div>
-                Temp: <%- temp %>
-            </div>
-            
-            <div>
-                Setpoint: <%- setpoint %>
-                <input type="button" id="setpoint" value="change" />
-            </div>
-            
-            <div>
-                Lower Limit: <%- dn_l %>
-                <input type="button" id="dn_l" value="change" />
-            </div>
-            
-            <div>
-                Upper Limit: <%- up_l %>
-                <input type="button" id="up_l" value="change" />
+        <div class="container">
+            <div class="starter-template">
+                <h1>Sous Vide Controller</h1>
+                <p>
+                    <span class="glyphicon glyphicon-cutlery"></span>
+                    Let's cook some meat
+                    <span class="glyphicon glyphicon-cutlery"></span>
+                </p>
+                <script type="text/template" id="gui_template">
+                    <div>
+                        Temp: <%- temp %>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-default" id="refresh_button">Refresh <span class="glyphicon glyphicon-repeat"></span></button>
+                    </div>
+                </script>
+
+                <div id="gui">
+                    <script type="text/coffeescript" src="bb2.coffee"></script>
+                </div>
             </div>
 
-            <div>
-                On: <%- on %>
-            </div>
-            
-            <div>
-                <input type="button" id="on" value="on" />
-                <input type="button" id="off" value="off" />
+            <div class="text-center">
+                <div class="btn-group btn-group-lg">
+                    <button type="button" class="btn btn-default">0</button>
+                    <button type="button" class="btn btn-default">42</button>
+                    <button type="button" class="btn btn-default">44</button>
+                    <button type="button" class="btn btn-default">50</button>
+                    <button type="button" class="btn btn-default">54</button>
+                    <button type="button" class="btn btn-default">55</button>
+                    <button type="button" class="btn btn-default">56</button>
+                    <button type="button" class="btn btn-default">59</button>
+                    <button type="button" class="btn btn-default">60</button>
+                    <button type="button" class="btn btn-default">65</button>
+                    <button type="button" class="btn btn-default">72</button>
+                    <button type="button" class="btn btn-default">73</button>
+                    <button type="button" class="btn btn-default">85</button>
+                </div>
             </div>
 
+            <script>
+                $('body').on('click', '.btn-group button', function (e) {
+                    $(this).addClass('active');
+                    $(this).siblings().removeClass('active');
+                });
+            </script>
+
             <div>
-                <input type="button" id="refresh_button" value="Refresh" />
+                <svg id="chart"></svg>
             </div>
 
-        </script>
+            <ul class="pager">
+                <li class="previous"><a href="#">&larr; Older</a></li>
+                <li class="next"><a href="#">Newer &rarr;</a></li>
+            </ul>
+            <script type="text/javascript" src="graph.js"></script>
 
-        <div id="gui">
-            <script type="text/coffeescript" src="bb2.coffee"></script>        
         </div>
 
-        <script type="text/javascript" src="graph.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        
+
     </body>
 </html>

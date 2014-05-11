@@ -286,8 +286,8 @@ setupAppengine = (sv) ->
 
 
 main = () ->
-  wdogStop = watchdog.feedLoop()
-  handleSignals wdogStop
+  #wdogStop = watchdog.feedLoop()
+  #handleSignals wdogStop
 
   sv = setup()
 
